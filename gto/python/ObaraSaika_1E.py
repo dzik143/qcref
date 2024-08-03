@@ -323,7 +323,7 @@ def ObaraSaika_Overlap(za, zb, ra, rb, c):
 # ------------------------------------------------------------------------------
 
 #
-# Calculate kinetric energy integral over two GTO orbitals with arbitrary
+# Calculate kinetric energy integral (KEI) over two GTO orbitals with arbitrary
 # angular momentums.
 #
 #  /        ( 1      1       1   )
@@ -357,8 +357,8 @@ def ObaraSaika_Kinetic(za, zb, ra, rb, c):
 # ------------------------------------------------------------------------------
 
 #
-# Calculate kinetric energy integral over two GTO orbitals with arbitrary
-# angular momentums.
+# Calculate nuclear-electron attarction (NEI) integral over two GTO orbitals
+# with arbitrary angular momentums.
 #
 #  /         1
 #  | a(r) * ---- * b(r) dr
