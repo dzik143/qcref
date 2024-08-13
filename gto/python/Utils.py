@@ -30,9 +30,27 @@ def DistSquared(r1, r2):
   distZ = r1[2] - r2[2]
   return distX**2 + distY**2 + distZ**2
 
+# ------------------------------------------------------------------------------
+# Distance between two points in 3d.
 def Dist(r1, r2):
   return sqrt(DistSquared(r1, r2))
 
+# ------------------------------------------------------------------------------
+# Multiply two GTOs with centers A,B gives another GTO with different center.
+# Function returns coords of this new center.
+def GaussianProduct(za, zb, ra, rb):
+  return [
+    (za * ra[0] + zb * rb[0]) / (za + zb), # x
+    (za * ra[1] + zb * rb[1]) / (za + zb), # y
+    (za * ra[2] + zb * rb[2]) / (za + zb)  # z
+  ]
+
+# ------------------------------------------------------------------------------
+# https://en.wikipedia.org/wiki/Harmonic_mean#Harmonic_mean_of_two_or_three_numbers
+def HarmonicMean(x, y):
+  return 2 * x*y / (x + y)
+
+# ------------------------------------------------------------------------------
 # Calculate approximation of Boys function of order n at point x:
 #
 #         /1  2n         2
