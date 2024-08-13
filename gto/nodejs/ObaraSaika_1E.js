@@ -17,7 +17,7 @@
 *                                                                              *
 *******************************************************************************/
 
-const Utils = require('./Utils.js');
+import Utils from './Utils.js';
 
 const { exp, PI, floor } = Math;
 
@@ -113,11 +113,11 @@ function _ObaraSaika_OneElectronInternal(rv, q, currentTerm,
       newQ[reduceIdx] -= 1;
       newQ[IDX_Q_SUM] -= 1;
 
-      goOn = true;
+      let goOn = true;
 
       // Extra reduction on child node if needed.
       if (extraReduceFun != null) {
-        extraReduceIdx = extraReduceFun * 3 + reduceXyz;
+        const extraReduceIdx = extraReduceFun * 3 + reduceXyz;
 
         if (newQ[extraReduceIdx] == 0) {
           // Already reduced to 0.
@@ -141,7 +141,7 @@ function _ObaraSaika_OneElectronInternal(rv, q, currentTerm,
         _ObaraSaika_OneElectronInternal(rv, newQ, newTerm,
                                             newOrder, newschemeId, params);
       }
-    }
+    };
 
     //
     // Apply one of Obara-Saika recursion schemes.
@@ -192,11 +192,13 @@ function _ObaraSaika_OneElectronInternal(rv, q, currentTerm,
 
 function _ObaraSaika_OneElectron(za, zb, ra, rb, rc, q, schemeId) {
 
+  let totalAngularMomentum = 0;
+
   if (q.length == IDX_Q_SUM) {
     // Precalculate sum of all elements to detect [ss|ss] integrals easily.
     // We need to update this sum when one of component is changed.
     totalAngularMomentum = Utils.sum(q);
-    q = [...q, totalAngularMomentum]
+    q = [...q, totalAngularMomentum];
 
   } else {
     // Sum already available.
@@ -205,10 +207,12 @@ function _ObaraSaika_OneElectron(za, zb, ra, rb, rc, q, schemeId) {
   }
 
   // Set up parameters.
-  const params = _ObaraSaika_CreateOneElectronParams(za, zb, ra, rb, rc, q);
+  const params = _ObaraSaika_CreateOneElectronParams(za, zb, ra, rb, rc);
 
   // Allocate output array.
   // Possible improvement: Possibility to use caller array?
+  let rv = null;
+
   switch (schemeId) {
     case 'S': rv = [0]; break;
     case 'T': rv = [0, 0]; break;
@@ -228,7 +232,7 @@ function _ObaraSaika_OneElectron(za, zb, ra, rb, rc, q, schemeId) {
 // This context is passed thgrought _ObaraSaika_xxx() calls.
 //
 
-function _ObaraSaika_CreateOneElectronParams(za, zb, ra, rb, rc, q) {
+function _ObaraSaika_CreateOneElectronParams(za, zb, ra, rb, rc) {
   // Convert 2-center integral to 1-center using Gaussian product rule.
   // P = new center for A*B.
   const rp = Utils.gaussianProduct(za, zb, ra, rb);
@@ -246,7 +250,9 @@ function _ObaraSaika_CreateOneElectronParams(za, zb, ra, rb, rc, q) {
   const Bz = rp[2] - rb[2];
 
   // Optional third center (e.g. for nuclear repulsion integral).
-  let Cx = Cy = Cz = 0.0;
+  let Cx = 0.0;
+  let Cy = 0.0;
+  let Cz = 0.0;
 
   if (rc != null) {
     Cx = rc[0] - rp[0];
@@ -305,7 +311,7 @@ function ObaraSaika_Overlap_SS(za, zb, ra, rb) {
   const zetaRho = za * zb / zetaSum;
   const ra2     = Utils.distSquared(ra, rb);
   const rv      = exp(-zetaRho * ra2) * (PI / zetaSum)**1.5;
-  return rv
+  return rv;
 };
 
 //
@@ -327,7 +333,7 @@ function ObaraSaika_Overlap_SS(za, zb, ra, rb) {
 //   Value of <a|b> integral.
 //
 
-function ObaraSaika_Overlap(za, zb, ra, rb, q) {
+export function ObaraSaika_Overlap(za, zb, ra, rb, q) {
   const aux       = ObaraSaika_Overlap_SS(za, zb, ra, rb);
   const expansion = _ObaraSaika_OneElectron(za, zb, ra, rb, null, q, 'S');
   return aux * expansion[0];
@@ -352,7 +358,7 @@ function ObaraSaika_Overlap(za, zb, ra, rb, q) {
 //   Value of kinetic energy intergal.
 //
 
-function ObaraSaika_Kinetic(za, zb, ra, rb, q) {
+export function ObaraSaika_Kinetic(za, zb, ra, rb, q) {
   const aux     = ObaraSaika_Overlap_SS(za, zb, ra, rb);
   const zetaRho = Utils.harmonicMean(za, zb);
   const Rab2    = Utils.distSquared(ra, rb);
@@ -384,7 +390,7 @@ function ObaraSaika_Kinetic(za, zb, ra, rb, q) {
 //   Value of nuclear interaction integral.
 //
 
-function ObaraSaika_Nuclear(za, zb, ra, rb, rc, q) {
+export function ObaraSaika_Nuclear(za, zb, ra, rb, rc, q) {
   // Calculate expansion coefficient before each Boys(n) functions,
   // by applying Obara-Saika recursive scheme.
   const expansion = _ObaraSaika_OneElectron(za, zb, ra, rb, rc, q, 'N');
@@ -407,9 +413,3 @@ function ObaraSaika_Nuclear(za, zb, ra, rb, rc, q) {
 
   return aux * rv;
 }
-
-module.exports = {
-  ObaraSaika_Overlap,
-  ObaraSaika_Kinetic,
-  ObaraSaika_Nuclear,
-};

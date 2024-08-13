@@ -17,27 +17,27 @@
 *                                                                              *
 *******************************************************************************/
 
-const gamma    = require('@stdlib/math-base-special-gamma')
-const gammainc = require('@stdlib/math-base-special-gammainc')
+import gamma    from '@stdlib/math-base-special-gamma';
+import gammainc from '@stdlib/math-base-special-gammainc';
 
 // -----------------------------------------------------------------------------
 //                               Public API
 // -----------------------------------------------------------------------------
 
-function distSquared(r1, r2) {
-  distX = r1[0] - r2[0]
-  distY = r1[1] - r2[1]
-  distZ = r1[2] - r2[2]
-  return distX**2 + distY**2 + distZ**2
+export function distSquared(r1, r2) {
+  const distX = r1[0] - r2[0];
+  const distY = r1[1] - r2[1];
+  const distZ = r1[2] - r2[2];
+  return distX**2 + distY**2 + distZ**2;
 }
 
-function dist(r1, r2) {
-  return Math.sqrt(DistSquared(r1, r2))
+export function dist(r1, r2) {
+  return Math.sqrt(distSquared(r1, r2));
 }
 
 // Multiply two GTOs with centers A,B gives another GTO with different center.
 // Function returns coords of this new center.
-function gaussianProduct(za, zb, ra, rb) {
+export function gaussianProduct(za, zb, ra, rb) {
   return [
     (za * ra[0] + zb * rb[0]) / (za + zb), // x
     (za * ra[1] + zb * rb[1]) / (za + zb), // y
@@ -46,7 +46,7 @@ function gaussianProduct(za, zb, ra, rb) {
 }
 
 // https://en.wikipedia.org/wiki/Harmonic_mean#Harmonic_mean_of_two_or_three_numbers
-function harmonicMean(x, y) {
+export function harmonicMean(x, y) {
   return 2 * x*y / (x + y);
 }
 
@@ -56,8 +56,8 @@ function harmonicMean(x, y) {
 // Fn(x) = |  t  * exp(-xt ) dt
 //         /0
 
-function boys(order, x) {
-  let rv = 0.0
+export function boys(order, x) {
+  let rv = 0.0;
 
   if (x > 0.0) {
     const g  = gamma(order + 0.5);
@@ -71,7 +71,7 @@ function boys(order, x) {
   return rv;
 }
 
-function sum(tab) {
+export function sum(tab) {
   let rv = 0;
   tab.forEach((v) => {
     rv += v;
@@ -79,7 +79,7 @@ function sum(tab) {
   return rv;
 }
 
-module.exports = {
+export default {
   distSquared,
   dist,
   gaussianProduct,

@@ -17,7 +17,7 @@
 *                                                                              *
 *******************************************************************************/
 
-const Utils = require('./Utils.js');
+import Utils from './Utils.js';
 
 const { exp, PI, floor, sqrt } = Math;
 
@@ -53,7 +53,7 @@ const IDX_MIXED    = 22;
 //
 // We have 2 symmetries:
 // - swap functions within the same bra/ket side: [ab|->[ba| and |cd]->|dc],
-// - swap the whole pair between bra/ket sides: [ab|cd]->[cd|ab]
+// - swap the whole pair between bra/ket sides: [ab|cd]->[cd|ab].
 //
 // Permutate original [ab|cd] functions depending on selected one.
 // Below map shows new functions order within integral.
@@ -216,7 +216,7 @@ function _ObaraSaika_ERI_Expansion(rv, q, currentTerm, currentOrder, params) {
       newQ[reduceIdx] -= 1;
       newQ[IDX_Q_SUM] -= 1;
 
-      goOn = true;
+      let goOn = true;
 
       // Extra reduction on child node if (needed.
       if (extraReduceFun != null) {
@@ -243,7 +243,7 @@ function _ObaraSaika_ERI_Expansion(rv, q, currentTerm, currentOrder, params) {
       if (goOn) {
         _ObaraSaika_ERI_Expansion(rv, newQ, newTerm, newOrder, params);
       }
-    }
+    };
 
     // Apply Obara-Saika scheme.
     // Each reduction generate up to 8 child nodes.
@@ -306,7 +306,8 @@ function _ObaraSaika_ERI_Expansion(rv, q, currentTerm, currentOrder, params) {
 // --------
 //   Value of [ab|cd] integral (ERI).
 //
-function ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, angularMomentum) {
+
+export function ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, angularMomentum) {
 
   let totalAngularMomentum = 0;
 
@@ -411,17 +412,13 @@ function ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, angularMomentum) {
   });
 
   // Calculate extra coeficient for the whole integral.
-  const Rab2 = Utils.distSquared(ra, rb)
-  const Rcd2 = Utils.distSquared(rc, rd)
+  const Rab2 = Utils.distSquared(ra, rb);
+  const Rcd2 = Utils.distSquared(rc, rd);
 
-  const Sab = exp(-za*zb / zetaLeft  * Rab2) / zetaLeft
-  const Scd = exp(-zc*zd / zetaRight * Rcd2) / zetaRight
+  const Sab = exp(-za*zb / zetaLeft  * Rab2) / zetaLeft;
+  const Scd = exp(-zc*zd / zetaRight * Rcd2) / zetaRight;
 
-  const aux = 2 * PI**(5/2) * Sab * Scd / sqrt(zetaTotal)
+  const aux = 2 * PI**(5/2) * Sab * Scd / sqrt(zetaTotal);
 
   return aux * rv;
 }
-
-module.exports = {
-  ObaraSaika_ERI
-};

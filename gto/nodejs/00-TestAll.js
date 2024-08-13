@@ -17,15 +17,15 @@
 *                                                                              *
 *******************************************************************************/
 
-const fs = require('fs');
+import fs from 'fs';
 
-const {
+import {
   ObaraSaika_Overlap,
   ObaraSaika_Nuclear,
   ObaraSaika_Kinetic
-} = require('./ObaraSaika_1E.js');
+} from './ObaraSaika_1E.js';
 
-const { ObaraSaika_ERI } = require('./ObaraSaika_ERI.js');
+import { ObaraSaika_ERI } from './ObaraSaika_ERI.js';
 
 const { abs } = Math;
 
@@ -66,9 +66,9 @@ function _eri(q) {
 }
 
 function _runTests(fname, fct) {
-  console.log('-------------------------------------------------------')
+  console.log('-------------------------------------------------------');
   console.log(`Running tests "${fname}...`);
-  console.log('-------------------------------------------------------')
+  console.log('-------------------------------------------------------');
 
   const lines = fs.readFileSync(fname).toString().split(/\r?\n/);
 
@@ -98,7 +98,7 @@ function _runTests(fname, fct) {
       const timeElapsedMs = Date.now() - t0;
 
       // Compare result with reference value.
-      err = abs(currentValue - refValue);
+      const err = abs(currentValue - refValue);
 
       if (err < TOLERANCE) {
         if (timeElapsedMs > 0) {
