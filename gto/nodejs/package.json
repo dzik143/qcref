@@ -1,0 +1,16 @@
+{
+  "name": "gto-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@stdlib/math-base-special-gamma": "^0.3.0",
+    "@stdlib/math-base-special-gammainc": "^0.2.2",
+    "eslint": "^9.8.0"
+  }
+}
