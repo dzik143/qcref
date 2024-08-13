@@ -19,7 +19,7 @@
 
 import Utils
 
-from math import fabs, exp, pi, sqrt
+from math import exp, pi, sqrt
 
 #-------------------------------------------------------------------------------
 #                                 Constants
@@ -312,7 +312,7 @@ def ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, angularMomentum):
     totalAngularMomentum = angularMomentum[IDX_Q_SUM]
 
   #
-  # Precalculate constants needed during calculating expansion terms.
+  # Precalculate constants needed during finding out expansion terms.
   # We can calculate these paremeters once before starting to work.
   #
 
@@ -325,25 +325,13 @@ def ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, angularMomentum):
   # Convert 4-center integral to 2-center using Gaussian product rule.
   # We can do it, because A,B depends on r1, and C,D depends on r2.
   # P = new center for A*B (left side, bra),
-  rp = [
-    (za * ra[0] + zb * rb[0]) / zetaLeft, # x
-    (za * ra[1] + zb * rb[1]) / zetaLeft, # y
-    (za * ra[2] + zb * rb[2]) / zetaLeft  # z
-  ]
+  rp = Utils.GaussianProduct(za, zb, ra, rb)
 
   # Q = new center for C*D (right side, ket).
-  rq = [
-    (zc * rc[0] + zd * rd[0]) / zetaRight, # x
-    (zc * rc[1] + zd * rd[1]) / zetaRight, # y
-    (zc * rc[2] + zd * rd[2]) / zetaRight  # z
-  ]
+  rq = Utils.GaussianProduct(zc, zd, rc, rd)
 
   # W = new center for P*Q.
-  rw = [
-    (zetaLeft * rp[0] + zetaRight * rq[0]) / zetaTotal, # x
-    (zetaLeft * rp[1] + zetaRight * rq[1]) / zetaTotal, # y
-    (zetaLeft * rp[2] + zetaRight * rq[2]) / zetaTotal  # z
-  ]
+  rw = Utils.GaussianProduct(zetaLeft, zetaRight, rp, rq)
 
   # X-coord related.
   Ax = rp[0] - ra[0]
@@ -402,11 +390,7 @@ def ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, angularMomentum):
   _ObaraSaika_ERI_Expansion(expansion, angularMomentum, 1, 0, params)
 
   # Calculate argument passed to all Boys(order, x) functions.
-  X = (rp[0] - rq[0]) * (rp[0] - rq[0]) + \
-      (rp[1] - rq[1]) * (rp[1] - rq[1]) + \
-      (rp[2] - rq[2]) * (rp[2] - rq[2])
-
-  boysArg = rho * X
+  boysArg = rho * Utils.DistSquared(rp, rq)
 
   # Calculate final integral value by adding up expansion terms:
   # [ab|cd] = C0 * Boys(0,x) + C1 + Boys(1,x) + ... + Cn * Boys(n,x)
@@ -415,11 +399,12 @@ def ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, angularMomentum):
     rv += Utils.Boys(order, boysArg) * expansion[order]
 
   # Calculate extra coeficient for the whole integral.
-  Rab2 = (ra[0] - rb[0])**2 + (ra[1] - rb[1])**2 + (ra[2] - rb[2])**2
-  Rcd2 = (rc[0] - rd[0])**2 + (rc[1] - rd[1])**2 + (rc[2] - rd[2])**2
+  Rab2 = Utils.DistSquared(ra, rb)
+  Rcd2 = Utils.DistSquared(rc, rd)
 
-  Sab = exp(- za*zb / zetaLeft  * Rab2) / zetaLeft
-  Scd = exp(- zc*zd / zetaRight * Rcd2) / zetaRight
-  aux = 2 * pi**(5.0 / 2.0) * Sab * Scd / sqrt(zetaTotal)
+  Sab = exp(-za*zb / zetaLeft  * Rab2) / zetaLeft
+  Scd = exp(-zc*zd / zetaRight * Rcd2) / zetaRight
+
+  aux = 2 * pi**(5/2) * Sab * Scd / sqrt(zetaTotal)
 
   return aux * rv

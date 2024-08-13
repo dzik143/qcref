@@ -19,7 +19,7 @@
 
 import Utils
 
-from math import pi, exp, fabs
+from math import pi, exp
 
 #-------------------------------------------------------------------------------
 #                                 Constants
@@ -81,11 +81,11 @@ def _ObaraSaika_OneElectronInternal(rv, q, currentTerm,
     reduceFun = reduceIdx // 3 # Function number (0,1)
     reduceXyz = reduceIdx %  3 # Component of angular momentum (x,y,z)
 
-    # We have hard-coded Obara-Saika schemes ro reduce left side (a function).
-    # To keep it simple, just swap a<->b to get function to reduce always
-    # on left side.
-    # This trick works due to integral symmetry with real functions (GTO).
-    # E.g. <a|b> = <b|a> etc.
+    # We have hard-coded Obara-Saika schemes to reduce left side ("a"
+    # function). To keep it simple, we just swap a<->b to get function
+    # being reduced always at "a" position (on left0.
+    # This trick works due to integral symmetry with real functions (GTO):
+    # <a|b> = <b|a>
     a = reduceFun
     b = 1 if (a == 0) else 0
 
@@ -138,7 +138,7 @@ def _ObaraSaika_OneElectronInternal(rv, q, currentTerm,
                                             newOrder, newschemeId, params)
 
     #
-    # Apply one of Obara-Saika saika recursion schemes.
+    # Apply one of Obara-Saika recursion schemes.
     # At each call we reduce angular momentum by one and generate
     # up to 3 (S), 5 (T) or 6 (N) terms recurisively.
     #
@@ -216,13 +216,7 @@ def _ObaraSaika_OneElectron(za, zb, ra, rb, rc, q, schemeId):
 def _ObaraSaika_CreateOneElectronParams(za, zb, ra, rb, rc, q):
   # Convert 2-center integral to 1-center using Gaussian product rule.
   # P = new center for A*B.
-  zetaSum = za + zb
-
-  rp = [
-    (za * ra[0] + zb * rb[0]) / zetaSum, # x
-    (za * ra[1] + zb * rb[1]) / zetaSum, # y
-    (za * ra[2] + zb * rb[2]) / zetaSum  # z
-  ]
+  rp = Utils.GaussianProduct(za, zb, ra, rb)
 
   # Transform original A,B (and optionally C) centers into new
   # coordinate system relative to new RP center.
@@ -245,6 +239,7 @@ def _ObaraSaika_CreateOneElectronParams(za, zb, ra, rb, rc, q):
 
   # No-coords, but depends on zeta parameters on both sides
   # (bra/ket, left/right, AB).
+  zetaSum        = za + zb
   zetaCenter     = 0.5 / zetaSum
   zetaCenterRho  = za * zb / zetaSum
   zetaCenter2Rho = 2.0 * zetaCenterRho
@@ -315,9 +310,9 @@ def ObaraSaika_Overlap_SS(za, zb, ra, rb):
 #   Value of <a|b> integral.
 #
 
-def ObaraSaika_Overlap(za, zb, ra, rb, c):
+def ObaraSaika_Overlap(za, zb, ra, rb, q):
   aux       = ObaraSaika_Overlap_SS(za, zb, ra, rb)
-  expansion = _ObaraSaika_OneElectron(za, zb, ra, rb, None, c, 'S')
+  expansion = _ObaraSaika_OneElectron(za, zb, ra, rb, None, q, 'S')
   return aux * expansion[0]
 
 # ------------------------------------------------------------------------------
@@ -341,16 +336,16 @@ def ObaraSaika_Overlap(za, zb, ra, rb, c):
 #   Value of kinetic energy intergal.
 #
 
-def ObaraSaika_Kinetic(za, zb, ra, rb, c):
+def ObaraSaika_Kinetic(za, zb, ra, rb, q):
 
   aux     = ObaraSaika_Overlap_SS(za, zb, ra, rb)
-  zetaRho = za * zb / (za + zb)
+  zetaRho = Utils.HarmonicMean(za, zb)
   Rab2    = Utils.DistSquared(ra, rb)
 
-  expansion = _ObaraSaika_OneElectron(za, zb, ra, rb, None, c, 'T')
+  expansion = _ObaraSaika_OneElectron(za, zb, ra, rb, None, q, 'T')
 
   rv = expansion[0] + \
-     + zetaRho * (3.0 - 2.0 * zetaRho * Rab2) * expansion[1]
+     + 0.5 * zetaRho * (3 - zetaRho * Rab2) * expansion[1]
 
   return aux * rv
 
@@ -376,26 +371,20 @@ def ObaraSaika_Kinetic(za, zb, ra, rb, c):
 #   Value of nuclear interaction integral.
 #
 
-def ObaraSaika_Nuclear(za, zb, ra, rb, rc, c):
+def ObaraSaika_Nuclear(za, zb, ra, rb, rc, q):
   # Calculate expansion coefficient before each Boys(n) functions,
   # by applying Obara-Saika recursive scheme.
-  expansion = _ObaraSaika_OneElectron(za, zb, ra, rb, rc, c, 'N')
+  expansion = _ObaraSaika_OneElectron(za, zb, ra, rb, rc, q, 'N')
 
   # Calculate argument passed to all Boys(order, x) functions.
+  rp      = Utils.GaussianProduct(za, zb, ra, rb)
   zetaSum = za + zb
-
-  rp = [
-    (za * ra[0] + zb * rb[0]) / zetaSum, # x
-    (za * ra[1] + zb * rb[1]) / zetaSum, # y
-    (za * ra[2] + zb * rb[2]) / zetaSum  # z
-  ]
-
   boysArg = zetaSum * Utils.DistSquared(rp, rc)
 
   # Calculate final integral value by adding up expansion terms:
   # <a|1/rc|d> = C0 * Boys(0,x) + C1 + Boys(1,x) + ... + Cn * Boys(n,x)
   rv = 0.0
-  for order in range(sum(c) + 1):
+  for order in range(sum(q) + 1):
     rv += expansion[order] * Utils.Boys(order, boysArg)
 
   # Calculate extra coeficient for the whole integral.
