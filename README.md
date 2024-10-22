@@ -10,7 +10,7 @@
   - `<a|b>`   = overlap integral (S),
   - `<a|T|b>` = kinetic energy integral (KEI),
   - `<a|V|b>` = nuclear attraction integral (NAI),
-  - `<ab|1/r|cd>` = electric repulsion integral (ERI).
+  - `<ab|1/r|cd>` = electron repulsion integral (ERI).
 
 # How does it work?
   - Integrals are calculated using **Obara-Saika algorithm**.
