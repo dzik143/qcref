@@ -10,7 +10,7 @@
   - `<a|b>`   = overlap integral (S),
   - `<a|T|b>` = kinetic energy integral (KEI),
   - `<a|V|b>` = nuclear attraction integral (NAI),
-  - `(ab|cd)` = electric repulsion integral (ERI).
+  - `<ab|1/r|cd>` = electric repulsion integral (ERI).
 
 # How does it work?
   - Integrals are calculated using **Obara-Saika algorithm**.
@@ -37,6 +37,7 @@
     #     a func  b func
     #     x y z   x y z
     q = [ 0,0,0,  1,0,2 ]
+    #     s       fxzz
 
     # Calculate one-electron integrals.
     s_ab   = ObaraSaika_Overlap(za, zb, ra, rb, q)
@@ -64,8 +65,8 @@
     #     a func  b func  c func  d func
     #     x y z   x y z   x y z   x y z
     q = [ 0,0,0,  1,0,1,  0,1,2,  1,0,0 ]
-    #     s       dxz     dzz     px
+    #     s       dxz     fxzz    px
 
     # Calculate one-electron integrals.
-    G_ab = ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, q)
+    g_ab = ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, q)
   ```
