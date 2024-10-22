@@ -65,7 +65,7 @@
     #     a func  b func  c func  d func
     #     x y z   x y z   x y z   x y z
     q = [ 0,0,0,  1,0,1,  0,1,2,  1,0,0 ]
-    #     s       dxz     fxzz    px
+    #     s       dxz     fyzz    px
 
     # Calculate one-electron integrals.
     g_ab = ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, q)
