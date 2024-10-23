@@ -40,7 +40,7 @@
     #     s       fxzz
 
     # Calculate one-electron integrals.
-    s_ab   = ObaraSaika_Overlap(za, zb, ra, rb, q)
+    ovi_ab = ObaraSaika_Overlap(za, zb, ra, rb, q)
     nai_ab = ObaraSaika_Nuclear(za, zb, ra, rb, rc, q)
     kei_ab = ObaraSaika_Kinetic(za, zb, ra, rb, q)
   ```
@@ -68,5 +68,5 @@
     #     s       dxz     fyzz    px
 
     # Calculate one-electron integrals.
-    g_ab = ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, q)
+    eri_abcd = ObaraSaika_ERI(za, zb, zc, zd, ra, rb, rc, rd, q)
   ```
